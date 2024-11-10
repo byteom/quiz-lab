@@ -1,0 +1,184 @@
+[
+  {
+    "id": 1,
+    "question": "What is polymorphism in C++?",
+    "options": ["A feature of OOP", "A data type", "A function"],
+    "answer": "A feature of OOP",
+    "solution": "Polymorphism allows functions or methods to process objects differently based on their data type or class."
+  },
+  {
+    "id": 2,
+    "question": "What does the 'virtual' keyword do in C++?",
+    "options": ["Makes a function virtual", "Defines a class", "Allocates memory"],
+    "answer": "Makes a function virtual",
+    "solution": "The 'virtual' keyword is used to allow derived classes to override methods in a base class."
+  },
+  {
+    "id": 3,
+    "question": "What is the difference between struct and class in C++?",
+    "options": ["No difference", "Struct is public by default", "Class is public by default"],
+    "answer": "Struct is public by default",
+    "solution": "In C++, a struct's members are public by default, while a class's members are private by default."
+  },
+  {
+    "id": 4,
+    "question": "Which of the following is used to allocate memory dynamically?",
+    "options": ["malloc", "new", "alloc"],
+    "answer": "new",
+    "solution": "The 'new' keyword allocates memory dynamically in C++."
+  },
+  {
+    "id": 5,
+    "question": "What does the 'delete' keyword do?",
+    "options": ["Deallocates memory", "Deletes files", "Clears a vector"],
+    "answer": "Deallocates memory",
+    "solution": "The 'delete' keyword is used to free up dynamically allocated memory in C++."
+  },
+  {
+    "id": 6,
+    "question": "What is inheritance in C++?",
+    "options": ["Creating classes", "Reusing properties", "Allocating memory"],
+    "answer": "Reusing properties",
+    "solution": "Inheritance is a mechanism for reusing properties and behaviors from an existing class."
+  },
+  {
+    "id": 7,
+    "question": "Which of these is a valid access specifier in C++?",
+    "options": ["internal", "protected", "private-public"],
+    "answer": "protected",
+    "solution": "Protected is a valid access specifier that restricts access to derived classes."
+  },
+  {
+    "id": 8,
+    "question": "What is an object in C++?",
+    "options": ["A data structure", "An instance of a class", "A function"],
+    "answer": "An instance of a class",
+    "solution": "An object is an instance of a class that represents real-world entities in C++."
+  },
+  {
+    "id": 9,
+    "question": "What does STL stand for in C++?",
+    "options": ["Standard Template Library", "Static Type Library", "Shared Template Library"],
+    "answer": "Standard Template Library",
+    "solution": "The STL provides templates for commonly used data structures and algorithms."
+  },
+  {
+    "id": 10,
+    "question": "What does the 'const' keyword do?",
+    "options": ["Creates a constant variable", "Creates a function", "Defines a class"],
+    "answer": "Creates a constant variable",
+    "solution": "The 'const' keyword is used to define variables or methods that cannot be modified."
+  },
+  {
+    "id": 11,
+    "question": "What is encapsulation in C++?",
+    "options": ["Combining data and functions", "Defining classes", "Dynamic memory allocation"],
+    "answer": "Combining data and functions",
+    "solution": "Encapsulation combines data and functions into a single unit, enforcing data hiding."
+  },
+  {
+    "id": 12,
+    "question": "What type of inheritance allows multiple base classes?",
+    "options": ["Single", "Multiple", "Hierarchical"],
+    "answer": "Multiple",
+    "solution": "Multiple inheritance allows a class to inherit from multiple base classes."
+  },
+  {
+    "id": 13,
+    "question": "What is a constructor in C++?",
+    "options": ["Function to initialize objects", "Variable declaration", "Memory allocation"],
+    "answer": "Function to initialize objects",
+    "solution": "A constructor initializes objects of a class and has the same name as the class."
+  },
+  {
+    "id": 14,
+    "question": "Which operator is used to access members of a structure?",
+    "options": ["->", ".", "*"],
+    "answer": ".",
+    "solution": "The dot (.) operator is used to access members of a structure in C++."
+  },
+  {
+    "id": 15,
+    "question": "What is function overloading?",
+    "options": ["Same function name, different parameters", "Same function, same parameters", "Same function, different return types"],
+    "answer": "Same function name, different parameters",
+    "solution": "Function overloading allows functions with the same name but different parameters."
+  },
+  {
+    "id": 16,
+    "question": "What is an inline function in C++?",
+    "options": ["Function with no parameters", "Small function expanded at compile-time", "Function with only one line of code"],
+    "answer": "Small function expanded at compile-time",
+    "solution": "An inline function is expanded during compile-time to improve performance."
+  },
+  {
+    "id": 17,
+    "question": "What does the 'static' keyword do?",
+    "options": ["Defines a global variable", "Defines a static variable", "Allocates memory dynamically"],
+    "answer": "Defines a static variable",
+    "solution": "The 'static' keyword makes a variable persist across multiple function calls."
+  },
+  {
+    "id": 18,
+    "question": "What is an abstract class?",
+    "options": ["Class with no methods", "Class with at least one pure virtual function", "Class with only static methods"],
+    "answer": "Class with at least one pure virtual function",
+    "solution": "An abstract class cannot be instantiated and has at least one pure virtual function."
+  },
+  {
+    "id": 19,
+    "question": "What does 'friend' mean in C++?",
+    "options": ["Function that has access to private members", "Shared class", "Library function"],
+    "answer": "Function that has access to private members",
+    "solution": "A 'friend' function can access private and protected members of a class."
+  },
+  {
+    "id": 20,
+    "question": "What is operator overloading?",
+    "options": ["Redefining operators", "Using global operators", "Creating new operators"],
+    "answer": "Redefining operators",
+    "solution": "Operator overloading allows predefined operators to be redefined for custom data types."
+  },
+  {
+    "id": 21,
+    "question": "What does 'sizeof' operator return?",
+    "options": ["Size of an object in bytes", "Number of objects", "Address of object"],
+    "answer": "Size of an object in bytes",
+    "solution": "The 'sizeof' operator returns the memory size of an object in bytes."
+  },
+  {
+    "id": 22,
+    "question": "What is a destructor?",
+    "options": ["Function to delete an object", "Function to initialize an object", "Function to destroy memory"],
+    "answer": "Function to delete an object",
+    "solution": "A destructor is called when an object goes out of scope or is deleted."
+  },
+  {
+    "id": 23,
+    "question": "What does 'namespace' do in C++?",
+    "options": ["Defines a scope", "Creates classes", "Allocates memory"],
+    "answer": "Defines a scope",
+    "solution": "Namespaces allow classes and functions to be grouped under a unique scope."
+  },
+  {
+    "id": 24,
+    "question": "What does the keyword 'auto' do?",
+    "options": ["Automatically detects data type", "Creates a class", "Allocates memory"],
+    "answer": "Automatically detects data type",
+    "solution": "The 'auto' keyword allows automatic data type deduction at compile-time."
+  },
+  {
+    "id": 25,
+    "question": "What is the use of 'this' pointer?",
+    "options": ["Refers to current object", "Refers to parent object", "Refers to base class"],
+    "answer": "Refers to current object",
+    "solution": "The 'this' pointer is an implicit parameter to all member functions of a class."
+  },
+  {
+    "id": 26,
+    "question": "Which of the following is a loop control structure?",
+    "options": ["if", "while", "goto"],
+    "answer": "while",
+    "solution": "The 'while' loop repeats code based on a condition."
+  }
+]
