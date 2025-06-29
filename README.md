@@ -1,3 +1,13 @@
+![Stars](https://img.shields.io/github/stars/byteom/quiz-lab?style=social)
+![Forks](https://img.shields.io/github/forks/byteom/quiz-lab?style=social)
+![License](https://img.shields.io/github/license/byteom/quiz-lab)
+
+
+
+
+
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
