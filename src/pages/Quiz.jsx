@@ -1,9 +1,8 @@
-// src/pages/Quiz.jsx
-
 import { useParams, useNavigate } from 'react-router-dom';
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
+import Confetti from 'react-confetti';
+import { motion, AnimatePresence } from 'framer-motion';
 
-// Dynamically import JSON data files based on chapter ID
 const loadQuizData = async (chapterId) => {
   try {
     const module = await import(`../data/${chapterId}.json`);
@@ -23,16 +22,42 @@ function Quiz() {
   const [userAnswers, setUserAnswers] = useState(
     JSON.parse(localStorage.getItem(`quiz-${chapterId}`)) || {}
   );
+  const [visited, setVisited] = useState(new Set([0]));
+  const [timeLeft, setTimeLeft] = useState(15);
+  const [showConfetti, setShowConfetti] = useState(false);
+  const timerRef = useRef(null);
 
   useEffect(() => {
     loadQuizData(chapterId).then(setQuestions);
   }, [chapterId]);
 
+  useEffect(() => {
+    setVisited((prev) => new Set(prev).add(currentIndex));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+    setTimeLeft(15);
+  }, [currentIndex]);
+
+  useEffect(() => {
+    if (questions.length === 0 || currentIndex >= questions.length) return;
+
+    timerRef.current = setInterval(() => {
+      setTimeLeft((prev) => {
+        if (prev === 1) {
+          clearInterval(timerRef.current);
+          if (currentIndex < questions.length - 1) {
+            setCurrentIndex((index) => index + 1);
+          }
+          return 15;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(timerRef.current);
+  }, [currentIndex, questions.length]);
+
   const handleAnswer = (option) => {
-    setUserAnswers((prev) => ({
-      ...prev,
-      [currentIndex]: option,
-    }));
+    setUserAnswers((prev) => ({ ...prev, [currentIndex]: option }));
   };
 
   const handleNext = () => {
@@ -48,87 +73,146 @@ function Quiz() {
   };
 
   const handleSubmit = () => {
-    localStorage.setItem(`quiz-${chapterId}`, JSON.stringify(userAnswers));
-    navigate(`/result/${chapterId}`);
+    const confirmSubmit = window.confirm("Are you sure you want to submit the quiz?");
+    if (confirmSubmit) {
+      setShowConfetti(true);
+      setTimeout(() => {
+        localStorage.setItem(`quiz-${chapterId}`, JSON.stringify(userAnswers));
+        navigate(`/result/${chapterId}`);
+      }, 5000);
+    }
   };
 
   const handleReset = () => {
     localStorage.removeItem(`quiz-${chapterId}`);
     setUserAnswers({});
+    setVisited(new Set([0]));
     setCurrentIndex(0);
+    setTimeLeft(15);
   };
 
-  if (questions.length === 0) {
-    return <p>Loading questions...</p>;
-  }
+  if (questions.length === 0) return <p>Loading questions...</p>;
 
   return (
-    <div className="container mx-auto p-8 flex">
-      {/* Sidebar for question navigation */}
-      <div className="w-1/4 p-4 bg-gradient-to-b from-gray-600 to-gray-500 text-white rounded-xl shadow-lg">
-        <h2 className="text-xl font-bold mb-6">Question Navigation</h2>
-        
-        {/* Scrollable navigation with circular buttons */}
-        <div className="grid grid-cols-5 gap-4 overflow-y-auto max-h-[320px] custom-scrollbar">
-          {questions.map((_, index) => (
-            <button
-              key={index}
-              onClick={() => setCurrentIndex(index)}
-              className={`w-10 h-10 rounded-full text-center font-semibold transition transform hover:scale-105 ${
-                index === currentIndex
-                  ? 'bg-blue-500 text-white'            // Current question color
-                  : userAnswers[index]
-                  ? 'bg-red-500 text-white'             // Attempted question color
-                  : 'border border-gray-400 text-gray-700' // Unattempted question color
-              }`}
-            >
-              {index + 1}
-            </button>
-          ))}
-        </div>
-      </div>
+    <div className="container mx-auto p-8 flex gap-6">
+      {showConfetti && <Confetti recycle={false} numberOfPieces={1500} />}
 
-      {/* Main quiz content */}
-      <div className="w-3/4 pl-8">
-        <h2 className="text-3xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-purple-500 to-blue-500 mb-6">
-          Quiz - {chapterId.replace('_', ' ')}
-        </h2>
-
-        {/* Display current question */}
-        <div className="bg-white/20 backdrop-blur-lg p-6 rounded-xl shadow-lg border border-gray-300 mb-8">
-          <p className="text-2xl font-semibold text-gray-800">
-            Q{currentIndex + 1}: {questions[currentIndex].question}
-          </p>
-          <div className="mt-4">
-            {questions[currentIndex].options.map((option, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleAnswer(option)}
-                className={`block w-full text-left p-3 mb-3 rounded-lg transition-transform transform hover:scale-105 ${
-                  userAnswers[currentIndex] === option
-                    ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-800'
-                }`}
-              >
-                {option}
-              </button>
-            ))}
+      <div className="w-1/4 p-6 bg-gradient-to-b from-gray-700 to-gray-500 text-white rounded-2xl shadow-2xl border border-white/10">
+        <h2 className="text-2xl font-extrabold mb-4 tracking-wider">Question Navigation</h2>
+        <div className="text-sm font-medium mb-6 space-y-2">
+          <div className="flex items-center gap-3">
+            <div className="w-4 h-4 bg-green-500 rounded-full shadow"></div> Answered
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-4 h-4 bg-yellow-400 rounded-full shadow"></div> Visited
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-4 h-4 border-2 border-gray-300 rounded-full"></div> Not Visited
+          </div>
+          <div className="flex items-center gap-3">
+            <div className="w-4 h-4 bg-blue-500 rounded-full shadow"></div> Current
           </div>
         </div>
 
-        {/* Navigation and Reset buttons */}
-        <div className="flex justify-between items-center mt-6">
+        <div className="grid grid-cols-5 gap-3 overflow-y-auto max-h-[320px] custom-scrollbar">
+          {questions.map((_, index) => {
+            const isCurrent = index === currentIndex;
+            const isAnswered = userAnswers[index];
+            const isVisited = visited.has(index);
+
+            let buttonColor = '';
+            if (isCurrent) {
+              buttonColor = 'bg-blue-500 text-white';
+            } else if (isAnswered) {
+              buttonColor = 'bg-green-500 text-white';
+            } else if (isVisited) {
+              buttonColor = 'bg-yellow-400 text-black';
+            } else {
+              buttonColor = 'border-2 border-gray-300 text-gray-700';
+            }
+
+            return (
+              <button
+                key={index}
+                onClick={() => setCurrentIndex(index)}
+                className={`w-10 h-10 rounded-full text-base font-bold transition transform hover:scale-110 shadow-md ${buttonColor}`}
+              >
+                {index + 1}
+              </button>
+            );
+          })}
+        </div>
+      </div>
+
+      <div className="w-3/4 pl-4">
+        <h2 className="text-4xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 mb-8 drop-shadow-md">
+          Quiz - {chapterId.replace('_', ' ')}
+        </h2>
+
+        <p className="text-lg text-gray-700 mb-2 font-semibold tracking-wider">
+          Question {currentIndex + 1} of {questions.length}
+        </p>
+        <div className="w-full h-2 bg-gray-200 rounded-full mb-4">
+          <div
+            className="h-full bg-green-500 rounded-full transition-all duration-300"
+            style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
+          ></div>
+        </div>
+
+        <div className="flex justify-between items-center mb-2">
+          <p className="text-lg font-bold text-red-600">
+            ⏱ Time Left: {timeLeft}s
+          </p>
+          <div className="w-1/3 h-2 bg-gray-300 rounded-full">
+            <div
+              className="h-full bg-red-500 rounded-full transition-all duration-1000"
+              style={{ width: `${(timeLeft / 15) * 100}%` }}
+            ></div>
+          </div>
+        </div>
+
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white/30 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-gray-300 mb-8"
+          >
+            <p className="text-3xl font-semibold text-gray-900 leading-relaxed mb-6">
+              Q{currentIndex + 1}: {questions[currentIndex].question}
+            </p>
+            <div className="mt-4">
+              {questions[currentIndex].options.map((option, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleAnswer(option)}
+                  className={`block w-full text-left p-4 mb-4 rounded-xl shadow-md text-lg font-medium transition-all duration-300 hover:scale-[1.02] ${
+                    userAnswers[currentIndex] === option
+                      ? 'bg-blue-600 text-white ring-2 ring-blue-400'
+                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
+
+        <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
           <button
             onClick={handlePrev}
             disabled={currentIndex === 0}
-            className="px-4 py-2 bg-gray-400 text-white rounded-full shadow-md hover:bg-gray-500 disabled:bg-gray-300 transition duration-300"
+            className="px-5 py-3 text-lg font-semibold rounded-full shadow-lg transition-all duration-300 hover:scale-105 bg-gray-400 hover:bg-gray-500 text-white disabled:bg-gray-300"
           >
             Previous
           </button>
 
           <button
             onClick={handleSubmit}
-            className="px-6 py-2 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 transition-transform transform hover:scale-105"
+            className="px-6 py-3 text-lg font-semibold rounded-full shadow-lg transition-all duration-300 hover:scale-105 bg-green-500 hover:bg-green-600 text-white"
           >
             Submit Quiz
           </button>
@@ -136,14 +220,18 @@ function Quiz() {
           <button
             onClick={handleNext}
             disabled={currentIndex === questions.length - 1}
-            className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105"
+            className={`px-5 py-3 text-lg font-semibold rounded-full shadow-lg transition-all duration-300 hover:scale-105 ${
+              currentIndex === questions.length - 1
+                ? 'bg-blue-300 cursor-not-allowed text-white'
+                : 'bg-blue-500 hover:bg-blue-600 text-white'
+            }`}
           >
             Next
           </button>
 
           <button
             onClick={handleReset}
-            className="px-4 py-2 bg-red-500 text-white rounded-full shadow-md hover:bg-red-600 transition-transform transform hover:scale-105"
+            className="px-5 py-3 text-lg font-semibold rounded-full shadow-lg transition-all duration-300 hover:scale-105 bg-red-500 hover:bg-red-600 text-white"
           >
             Reset Quiz
           </button>
