@@ -1,3 +1,16 @@
+## 🌐 Live Demo
+
+Try the app here: [quiz-lab.live](https://quiz-lab.live)  
+_Replace with actual link if deployed_
+
+
+
+
+
+
+
+
+
 # React + Vite
 
 This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
