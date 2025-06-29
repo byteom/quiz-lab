@@ -1,0 +1,149 @@
+# Name of the workflow
+name: Automatic Issue Assignment and Labeling
+
+# Events that trigger the workflow
+on:
+  # When a new issue is opened or an existing issue is reopened
+  issues:
+    types: [opened, reopened]
+  # To manually run the workflow (for processing old issues)
+  workflow_dispatch:
+
+# Permissions required for the workflow
+# 'issues: write' permission is necessary to assign, comment on, and label issues
+permissions:
+  issues: write
+
+# Jobs that will run in the workflow
+jobs:
+  # This job handles new or reopened issues
+  auto-assign-and-label:
+    # This job will only run if the event type is 'issues' (i.e., issue opened or reopened)
+    if: github.event_name == 'issues'
+    # Operating system used to run the job
+    runs-on: ubuntu-latest
+    # Steps for this job
+    steps:
+      - name: Assign the issue
+        # Use 'actions/github-script' to interact with the GitHub API
+        uses: actions/github-script@v6
+        with:
+          script: |
+            // Get the current issue number
+            const issueNumber = context.issue.number;
+            // Get the GitHub login name of the issue creator
+            const issueCreator = context.payload.issue.user.login;
+            console.log(`Assigning issue #${issueNumber} to ${issueCreator}.`);
+            // Use the GitHub API to assign the issue
+            await github.rest.issues.addAssignees({
+              owner: context.repo.owner, // Repository owner
+              repo: context.repo.repo,   // Repository name
+              issue_number: issueNumber, // Issue number
+              assignees: [issueCreator]  // Person to be assigned
+            });
+
+      - name: Add assignment message
+        # Use 'peter-evans/create-or-update-comment' to add a comment to the issue
+        uses: peter-evans/create-or-update-comment@v3
+        with:
+          issue-number: ${{ github.event.issue.number }} # The issue to comment on
+          body: |
+            Hello @${{ github.event.issue.user.login }}! This issue has been assigned to you. # Your message here
+
+      - name: Add 'assigned' label
+        # Use 'actions/github-script' again to interact with the GitHub API
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const issueNumber = context.issue.number;
+            console.log(`Adding 'assigned' label to issue #${issueNumber}.`);
+            // Use the GitHub API to add the 'assigned' label to the issue
+            await github.rest.issues.addLabels({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: issueNumber,
+              labels: ['assigned'] // Label to be added
+            });
+
+  # This job is for manually processing old, unassigned issues
+  process-old-issues:
+    # This job will only run when the workflow is manually triggered ('workflow_dispatch')
+    if: github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Process old and unassigned issues
+        # Use 'actions/github-script' to interact with the GitHub API
+        uses: actions/github-script@v6
+        with:
+          script: |
+            const owner = context.repo.owner;
+            const repo = context.repo.repo;
+
+            console.log('Looking for old and unassigned issues...');
+
+            // Get all open issues for the repository
+            // A maximum of 100 issues are retrieved per page. If you have more than 100 unassigned issues,
+            // you might need to run this multiple times or add pagination logic.
+            const { data: issues } = await github.rest.issues.listForRepo({
+              owner,
+              repo,
+              state: 'open', // Only open issues
+              per_page: 100  // Max 100 issues at a time
+            });
+
+            // Loop through each issue
+            for (const issue of issues) {
+              const issueNumber = issue.number;
+              const issueCreator = issue.user.login;
+              // Check if the issue is already assigned
+              const isAssigned = issue.assignees && issue.assignees.length > 0;
+              // Check if the issue already has the 'assigned' label
+              const hasAssignedLabel = issue.labels.some(label => label.name === 'assigned');
+
+              // If the issue is not assigned and does not have the 'assigned' label
+              if (!isAssigned && !hasAssignedLabel) {
+                console.log(`Processing issue #${issueNumber}: No assignees and no 'assigned' label.`);
+
+                // Assign the issue
+                try {
+                  await github.rest.issues.addAssignees({
+                    owner,
+                    repo,
+                    issue_number: issueNumber,
+                    assignees: [issueCreator]
+                  });
+                  console.log(`Issue #${issueNumber} assigned to ${issueCreator}.`);
+                } catch (error) {
+                  console.error(`Error assigning issue #${issueNumber}: ${error.message}`);
+                }
+
+                // Add assignment message
+                try {
+                  await github.rest.issues.createComment({
+                    owner,
+                    repo,
+                    issue_number: issueNumber,
+                    body: `Hello @${issueCreator}! This issue has been assigned to you.`
+                  });
+                  console.log(`Comment added to issue #${issueNumber}.`);
+                } catch (error) {
+                  console.error(`Error adding comment to issue #${issueNumber}: ${error.message}`);
+                }
+
+                // Add 'assigned' label
+                try {
+                  await github.rest.issues.addLabels({
+                    owner,
+                    repo,
+                    issue_number: issueNumber,
+                    labels: ['assigned']
+                  });
+                  console.log(`'assigned' label added to issue #${issueNumber}.`);
+                } catch (error) {
+                  console.error(`Error adding 'assigned' label to issue #${issueNumber}: ${error.message}`);
+                }
+              } else {
+                console.log(`Skipping issue #${issueNumber}: Already assigned or has 'assigned' label.`);
+              }
+            }
+            console.log('Finished processing old issues.');
