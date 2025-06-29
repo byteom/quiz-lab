@@ -10,6 +10,7 @@ function Result() {
   const [score, setScore] = useState(0);
   const [attempted, setAttempted] = useState(0);
   const [timeTaken, setTimeTaken] = useState(null); // ⏱️
+  const [showOnlyWrong, setShowOnlyWrong] = useState(false); // ✅ Toggle state
 
   useEffect(() => {
     const loadQuestions = async () => {
@@ -34,7 +35,6 @@ function Result() {
         setScore(correctAnswers);
         setAttempted(totalAttempted);
 
-        // ⏱️ Calculate and set time taken
         const start = parseInt(localStorage.getItem(`quiz-start-${chapterId}`));
         const end = parseInt(localStorage.getItem(`quiz-end-${chapterId}`));
 
@@ -74,6 +74,11 @@ function Result() {
   const percentage = questions.length > 0 ? Math.round((score / questions.length) * 100) : 0;
   const message = getMessage(percentage);
 
+  const userAnswers = JSON.parse(localStorage.getItem(`quiz-${chapterId}`)) || {};
+  const filteredQuestions = showOnlyWrong
+    ? questions.filter((q, idx) => userAnswers[idx] !== undefined && userAnswers[idx] !== q.answer)
+    : questions;
+
   if (questions.length === 0) {
     return <p className="text-center text-lg text-gray-600 dark:text-white">Loading results...</p>;
   }
@@ -88,16 +93,29 @@ function Result() {
         <p className="text-lg font-medium text-gray-800 dark:text-white">Total Questions: {questions.length}</p>
         <p className="text-lg font-medium text-gray-800 dark:text-white">Attempted Questions: {attempted}</p>
         <p className="text-lg font-medium text-gray-800 dark:text-white">Correct Answers: {score}</p>
-        <p className="text-lg font-medium text-blue-700 dark:text-blue-300 mt-4">🎯 Percentage: {percentage}%</p>
+        <p className="text-lg font-medium text-blue-700 dark:text-blue-300 mt-4">🎯 Percentage: {percentage}%
+        </p>
         <p className="text-xl font-semibold text-green-600 dark:text-green-400 mt-2">{message}</p>
         {timeTaken && (
           <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">🕒 Time Taken: {timeTaken}</p>
         )}
+
+        <div className="mt-4">
+          <label className="inline-flex items-center cursor-pointer">
+            <input
+              type="checkbox"
+              className="form-checkbox h-5 w-5 text-blue-600"
+              checked={showOnlyWrong}
+              onChange={() => setShowOnlyWrong(!showOnlyWrong)}
+            />
+            <span className="ml-2 text-sm text-gray-800 dark:text-white">Show only incorrect answers</span>
+          </label>
+        </div>
       </div>
 
       {/* Detailed question review */}
       <div className="mt-8 space-y-6">
-        {questions.map((question, index) => (
+        {filteredQuestions.map((question, index) => (
           <div key={question.id} className="p-6 bg-white dark:bg-gray-800 rounded-lg shadow-md border-l-4 border-blue-500 dark:border-blue-400">
             <p className="text-lg font-semibold text-gray-800 dark:text-white">Q{index + 1}: {question.question}</p>
             <p className="mt-2 text-blue-600 dark:text-blue-300">Correct Answer: {question.answer}</p>
