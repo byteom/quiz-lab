@@ -1,5 +1,3 @@
-// src/pages/Quiz.jsx
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
@@ -67,8 +65,7 @@ function Quiz() {
       {/* Sidebar for question navigation */}
       <div className="w-1/4 p-4 bg-gradient-to-b from-gray-600 to-gray-500 text-white rounded-xl shadow-lg">
         <h2 className="text-xl font-bold mb-6">Question Navigation</h2>
-        
-        {/* Scrollable navigation with circular buttons */}
+
         <div className="grid grid-cols-5 gap-4 overflow-y-auto max-h-[320px] custom-scrollbar">
           {questions.map((_, index) => (
             <button
@@ -76,10 +73,10 @@ function Quiz() {
               onClick={() => setCurrentIndex(index)}
               className={`w-10 h-10 rounded-full text-center font-semibold transition transform hover:scale-105 ${
                 index === currentIndex
-                  ? 'bg-blue-500 text-white'            // Current question color
+                  ? 'bg-blue-500 text-white'
                   : userAnswers[index]
-                  ? 'bg-red-500 text-white'             // Attempted question color
-                  : 'border border-gray-400 text-gray-700' // Unattempted question color
+                  ? 'bg-red-500 text-white'
+                  : 'border border-gray-400 text-gray-700'
               }`}
             >
               {index + 1}
@@ -94,20 +91,20 @@ function Quiz() {
           Quiz - {chapterId.replace('_', ' ')}
         </h2>
 
-        {/* Display current question */}
         <div className="bg-white/20 backdrop-blur-lg p-6 rounded-xl shadow-lg border border-gray-300 mb-8">
-          <p className="text-2xl font-semibold text-gray-800">
+          <p className="text-2xl font-semibold text-gray-800 dark:text-white">
             Q{currentIndex + 1}: {questions[currentIndex].question}
           </p>
+
           <div className="mt-4">
             {questions[currentIndex].options.map((option, idx) => (
               <button
                 key={idx}
                 onClick={() => handleAnswer(option)}
-                className={`block w-full text-left p-3 mb-3 rounded-lg transition-transform transform hover:scale-105 ${
+                className={`quiz-option block w-full text-left p-3 mb-3 rounded-lg transition-transform transform hover:scale-105 ${
                   userAnswers[currentIndex] === option
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-800'
+                    : 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-white'
                 }`}
               >
                 {option}
