@@ -121,7 +121,7 @@ function Dashboard() {
           ))}
         </div>
       </div>
-
+{/* records */}
       <h2 className="text-2xl font-semibold text-gray-700 mb-6 mt-5">Your Daily Record</h2>
 
 
