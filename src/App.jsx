@@ -8,6 +8,8 @@ import Chapters from './pages/Chapters';
 import Quiz from './pages/Quiz';
 import Result from './pages/Result';
 import Solution from './pages/Solution';
+import Signup from "./pages/Signup";
+import Login from "./pages/Login";
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
         <main className="flex-grow container mx-auto p-6">
           <Routes>
             <Route path="/" element={<Dashboard />} />
+            <Route path="/signup" element={<Signup />} />
+            <Route path="/login" element={<Login />} />   
             <Route path="/chapters/:subjectId" element={<Chapters />} />
             <Route path="/quiz/:chapterId" element={<Quiz />} />
             <Route path="/result/:chapterId" element={<Result />} />
