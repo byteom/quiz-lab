@@ -125,13 +125,16 @@ function Quiz() {
           >
             Previous
           </button>
+{Object.keys(userAnswers).length > 0 && (
+  <button
+    onClick={handleSubmit}
+    className="px-6 py-2 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 transition-transform transform hover:scale-105"
+  >
+    Submit Quiz
+  </button>
+)}
 
-          <button
-            onClick={handleSubmit}
-            className="px-6 py-2 bg-green-500 text-white rounded-full shadow-md hover:bg-green-600 transition-transform transform hover:scale-105"
-          >
-            Submit Quiz
-          </button>
+
 
           <button
             onClick={handleNext}
