@@ -4,13 +4,14 @@ import { useParams } from 'react-router-dom';
 import { useState, useEffect } from 'react';
 
 function Solution() {
-  const { subject } = useParams();
+const { chapterId } = useParams(); // ✅ Matches your route
+
   const [questions, setQuestions] = useState([]);
 
   useEffect(() => {
     const loadQuestions = async () => {
       try {
-        const module = await import(`../data/${subject}.json`);
+        const module = await import(`../data/${chapterId}.json`);
         setQuestions(module.default);
       } catch (error) {
         console.error("Failed to load solution data:", error);
