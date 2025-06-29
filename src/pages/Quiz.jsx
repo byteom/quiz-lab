@@ -1,7 +1,6 @@
-// src/pages/Quiz.jsx
-
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect } from 'react';
+import QuestionTimer from '../components/QuestionTimer';  // import timer
 
 // Dynamically import JSON data files based on chapter ID
 const loadQuizData = async (chapterId) => {
@@ -24,6 +23,9 @@ function Quiz() {
     JSON.parse(localStorage.getItem(`quiz-${chapterId}`)) || {}
   );
 
+  // Boolean state to trigger timer reset on question change
+  const [timerResetTrigger, setTimerResetTrigger] = useState(false);
+
   useEffect(() => {
     loadQuizData(chapterId).then(setQuestions);
   }, [chapterId]);
@@ -37,13 +39,19 @@ function Quiz() {
 
   const handleNext = () => {
     if (currentIndex < questions.length - 1) {
-      setCurrentIndex((index) => index + 1);
+      setCurrentIndex((index) => {
+        setTimerResetTrigger(prev => !prev); // Reset timer on question change
+        return index + 1;
+      });
     }
   };
 
   const handlePrev = () => {
     if (currentIndex > 0) {
-      setCurrentIndex((index) => index - 1);
+      setCurrentIndex((index) => {
+        setTimerResetTrigger(prev => !prev); // Reset timer on question change
+        return index - 1;
+      });
     }
   };
 
@@ -56,6 +64,7 @@ function Quiz() {
     localStorage.removeItem(`quiz-${chapterId}`);
     setUserAnswers({});
     setCurrentIndex(0);
+    setTimerResetTrigger(prev => !prev); // Reset timer on quiz reset
   };
 
   if (questions.length === 0) {
@@ -63,23 +72,40 @@ function Quiz() {
   }
 
   return (
-    <div className="container mx-auto p-8 flex">
+    <div className="container mx-auto p-8 flex relative" style={{ minHeight: '600px' }}>
+      {/* Timer - position absolute bottom-right */}
+      <QuestionTimer
+        duration={30}
+        resetTrigger={timerResetTrigger}
+        onTimeUp={() => {
+          if (currentIndex < questions.length - 1) {
+            setCurrentIndex((index) => {
+              setTimerResetTrigger(prev => !prev); // reset timer on auto-next
+              return index + 1;
+            });
+          } else {
+            alert('Quiz finished!');
+          }
+        }}
+      />
+
       {/* Sidebar for question navigation */}
       <div className="w-1/4 p-4 bg-gradient-to-b from-gray-600 to-gray-500 text-white rounded-xl shadow-lg">
         <h2 className="text-xl font-bold mb-6">Question Navigation</h2>
-        
-        {/* Scrollable navigation with circular buttons */}
         <div className="grid grid-cols-5 gap-4 overflow-y-auto max-h-[320px] custom-scrollbar">
           {questions.map((_, index) => (
             <button
               key={index}
-              onClick={() => setCurrentIndex(index)}
+              onClick={() => {
+                setCurrentIndex(index);
+                setTimerResetTrigger(prev => !prev); // reset timer on manual navigation
+              }}
               className={`w-10 h-10 rounded-full text-center font-semibold transition transform hover:scale-105 ${
                 index === currentIndex
-                  ? 'bg-blue-500 text-white'            // Current question color
+                  ? 'bg-blue-500 text-white'
                   : userAnswers[index]
-                  ? 'bg-red-500 text-white'             // Attempted question color
-                  : 'border border-gray-400 text-gray-700' // Unattempted question color
+                  ? 'bg-red-500 text-white'
+                  : 'border border-gray-400 text-gray-700'
               }`}
             >
               {index + 1}
