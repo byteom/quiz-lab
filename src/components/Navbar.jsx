@@ -45,6 +45,15 @@ function Navbar() {
           >
             E-Learn
           </a>
+          {/* Admin Panel (only visible to admin role) */}
+            {currentUser?.role === "admin" && (
+              <Link
+                to="/admin/upload"
+                className="text-lg font-semibold text-yellow-300 hover:text-yellow-100 transition-transform transform hover:scale-105"
+              >
+                Admin Panel
+              </Link>
+            )}
         </div>
 
         {/* Right Side Auth Buttons */}

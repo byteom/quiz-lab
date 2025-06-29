@@ -10,6 +10,7 @@ import Result from './pages/Result';
 import Solution from './pages/Solution';
 import Signup from "./pages/Signup";
 import Login from "./pages/Login";
+import AdminUpload from './pages/AdminUpload'; 
 
 function App() {
   return (
@@ -28,6 +29,9 @@ function App() {
             <Route path="/quiz/:chapterId" element={<Quiz />} />
             <Route path="/result/:chapterId" element={<Result />} />
             <Route path="/solution/:chapterId" element={<Solution />} />
+            {/* <Route path="/admin/upload"element={JSON.parse(localStorage.getItem("currentUser"))?.role === "admin" ? (<AdminUpload />) : (<Navigate to="/" />)}/> */}
+            <Route path="/admin/upload" element={<AdminUpload />} />
+
           </Routes>
         </main>
         

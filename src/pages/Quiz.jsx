@@ -5,7 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 
 const loadQuizData = async (chapterId) => {
   try {
-    const module = await import(`../data/${chapterId}.json`);
+    const module = await import(`../data/cpp_basics.json`); // Load same quiz always
     return module.default;
   } catch (error) {
     console.error("Failed to load quiz data:", error);
@@ -97,21 +97,14 @@ function Quiz() {
     <div className="container mx-auto p-8 flex gap-6">
       {showConfetti && <Confetti recycle={false} numberOfPieces={1500} />}
 
+      {/* Sidebar Navigation */}
       <div className="w-1/4 p-6 bg-gradient-to-b from-gray-700 to-gray-500 text-white rounded-2xl shadow-2xl border border-white/10">
         <h2 className="text-2xl font-extrabold mb-4 tracking-wider">Question Navigation</h2>
         <div className="text-sm font-medium mb-6 space-y-2">
-          <div className="flex items-center gap-3">
-            <div className="w-4 h-4 bg-green-500 rounded-full shadow"></div> Answered
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-4 h-4 bg-yellow-400 rounded-full shadow"></div> Visited
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-4 h-4 border-2 border-gray-300 rounded-full"></div> Not Visited
-          </div>
-          <div className="flex items-center gap-3">
-            <div className="w-4 h-4 bg-blue-500 rounded-full shadow"></div> Current
-          </div>
+          <div className="flex items-center gap-3"><div className="w-4 h-4 bg-green-500 rounded-full shadow"></div> Answered</div>
+          <div className="flex items-center gap-3"><div className="w-4 h-4 bg-yellow-400 rounded-full shadow"></div> Visited</div>
+          <div className="flex items-center gap-3"><div className="w-4 h-4 border-2 border-gray-300 rounded-full"></div> Not Visited</div>
+          <div className="flex items-center gap-3"><div className="w-4 h-4 bg-blue-500 rounded-full shadow"></div> Current</div>
         </div>
 
         <div className="grid grid-cols-5 gap-3 overflow-y-auto max-h-[320px] custom-scrollbar">
@@ -121,15 +114,10 @@ function Quiz() {
             const isVisited = visited.has(index);
 
             let buttonColor = '';
-            if (isCurrent) {
-              buttonColor = 'bg-blue-500 text-white';
-            } else if (isAnswered) {
-              buttonColor = 'bg-green-500 text-white';
-            } else if (isVisited) {
-              buttonColor = 'bg-yellow-400 text-black';
-            } else {
-              buttonColor = 'border-2 border-gray-300 text-gray-700';
-            }
+            if (isCurrent) buttonColor = 'bg-blue-500 text-white';
+            else if (isAnswered) buttonColor = 'bg-green-500 text-white';
+            else if (isVisited) buttonColor = 'bg-yellow-400 text-black';
+            else buttonColor = 'border-2 border-gray-300 text-gray-700';
 
             return (
               <button
@@ -144,6 +132,7 @@ function Quiz() {
         </div>
       </div>
 
+      {/* Quiz Content */}
       <div className="w-3/4 pl-4">
         <h2 className="text-4xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 mb-8 drop-shadow-md">
           Quiz - {chapterId.replace('_', ' ')}
@@ -153,16 +142,12 @@ function Quiz() {
           Question {currentIndex + 1} of {questions.length}
         </p>
         <div className="w-full h-2 bg-gray-200 rounded-full mb-4">
-          <div
-            className="h-full bg-green-500 rounded-full transition-all duration-300"
-            style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}
-          ></div>
+          <div className="h-full bg-green-500 rounded-full transition-all duration-300"
+            style={{ width: `${((currentIndex + 1) / questions.length) * 100}%` }}></div>
         </div>
 
         <div className="flex justify-between items-center mb-2">
-          <p className="text-lg font-bold text-red-600">
-            ⏱ Time Left: {timeLeft}s
-          </p>
+          <p className="text-lg font-bold text-red-600">⏱ Time Left: {timeLeft}s</p>
           <div className="w-1/3 h-2 bg-gray-300 rounded-full">
             <div
               className="h-full bg-red-500 rounded-full transition-all duration-1000"
@@ -201,6 +186,7 @@ function Quiz() {
           </motion.div>
         </AnimatePresence>
 
+        {/* Controls */}
         <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
           <button
             onClick={handlePrev}

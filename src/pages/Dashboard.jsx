@@ -105,7 +105,7 @@ function Dashboard() {
                 {subject.chapters.map((chapter) => (
                   <li key={chapter.id}>
                     <Link
-                      to={`/quiz/${chapter.id}`}
+                      to={`/quiz/cpp_basics`}
                       className={`hover:underline text-xl font-semibold ${
                         chapter.level === 'basic' ? 'text-blue-300' :
                         chapter.level === 'intermediate' ? 'text-blue-500' :
@@ -121,8 +121,8 @@ function Dashboard() {
           ))}
         </div>
       </div>
-{/* records */}
-      <h2 className="text-2xl font-semibold text-gray-700 mb-6 mt-5">Your Daily Record</h2>
+
+      <h2 className="text-2xl font-semibold text-gray-700 mb-6 mt-3">Your Daily Record</h2>
 
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
