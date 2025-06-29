@@ -53,17 +53,53 @@ function Result() {
 
   return (
     <div className="container mx-auto px-6 py-10 bg-gray-100 rounded-xl shadow-lg">
-      <h2 className="text-5xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 mb-10 text-center">
-        Quiz Results
-      </h2>
 
-      <div className="text-center mb-10 space-y-2 text-xl text-gray-800 font-semibold">
-        <p>Total Questions: {questions.length}</p>
-        <p>Attempted: {attempted}</p>
-        <p>Correct: {score}</p>
+      {/* Score Card */}
+      <div className="bg-white p-8 rounded-2xl shadow-2xl mb-12 text-center">
+        <div className="flex justify-center mb-6">
+          <div className="w-24 h-24 flex items-center justify-center rounded-full border-4 border-blue-400">
+            <svg
+              className="w-12 h-12 text-blue-600"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              viewBox="0 0 24 24"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M5 13l4 4L19 7" />
+            </svg>
+          </div>
+        </div>
+
+        <h2 className="text-3xl font-bold text-gray-800 mb-4">Your quiz has been submitted!</h2>
+        <h3 className="text-2xl font-semibold text-gray-600 mb-6">Score Card</h3>
+
+        <div className="flex justify-center gap-6 flex-wrap">
+          <div className="bg-blue-100 text-blue-700 w-32 h-32 flex flex-col items-center justify-center rounded-full shadow-md">
+            <p className="text-3xl font-bold">{score}</p>
+            <p className="text-sm font-medium mt-2 text-center">Correct</p>
+          </div>
+          <div className="bg-cyan-100 text-cyan-700 w-32 h-32 flex flex-col items-center justify-center rounded-full shadow-md">
+            <p className="text-3xl font-bold">{questions.length}</p>
+            <p className="text-sm font-medium mt-2 text-center">Total</p>
+          </div>
+          <div className="bg-indigo-100 text-indigo-700 w-32 h-32 flex flex-col items-center justify-center rounded-full shadow-md">
+            <p className="text-3xl font-bold">{attempted - score}</p>
+            <p className="text-sm font-medium mt-2 text-center">Wrong</p>
+          </div>
+        </div>
+
+        <div className="mt-10">
+          <button
+            onClick={handleRetakeQuiz}
+            className="px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-500 text-white text-lg font-semibold rounded-full shadow-lg hover:shadow-xl hover:scale-105 transition transform"
+          >
+            GO BACK
+          </button>
+        </div>
       </div>
 
-      {/* Grid layout: 2 questions per row */}
+
+      {/* Questions Grid (2-column layout) */}
       <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
         {questions.map((q, index) => {
           const userAnswer = userAnswers[index];
@@ -72,7 +108,7 @@ function Result() {
           return (
             <div
               key={index}
-              className="min-h-[250px] p-6 bg-white rounded-2xl shadow-lg border-l-8 border-blue-500 flex flex-col justify-between"
+              className="min-h-[260px] p-6 bg-white rounded-2xl shadow-lg border-l-8 border-blue-500 flex flex-col justify-between"
             >
               <div>
                 <p className="text-2xl font-bold text-gray-800 mb-3">
