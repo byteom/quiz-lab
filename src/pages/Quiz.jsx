@@ -139,7 +139,11 @@ function Quiz() {
           <button
             onClick={handleNext}
             disabled={currentIndex === questions.length - 1}
-            className="px-4 py-2 bg-blue-500 text-white rounded-full shadow-md hover:bg-blue-600 transition-transform transform hover:scale-105"
+            className={`px-4 py-2 rounded-full shadow-md transition-transform transform hover:scale-105 ${
+  currentIndex === questions.length - 1
+    ? 'bg-blue-300 text-white cursor-not-allowed'
+    : 'bg-blue-500 text-white hover:bg-blue-600'
+}`}
           >
             Next
           </button>
