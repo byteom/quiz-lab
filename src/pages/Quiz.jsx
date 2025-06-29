@@ -1,5 +1,7 @@
 import { useParams, useNavigate } from 'react-router-dom';
 import { useState, useEffect, useRef } from 'react';
+import Confetti from 'react-confetti';
+import { motion, AnimatePresence } from 'framer-motion';
 
 const loadQuizData = async (chapterId) => {
   try {
@@ -22,21 +24,19 @@ function Quiz() {
   );
   const [visited, setVisited] = useState(new Set([0]));
   const [timeLeft, setTimeLeft] = useState(15);
+  const [showConfetti, setShowConfetti] = useState(false);
   const timerRef = useRef(null);
 
-  // Load questions
   useEffect(() => {
     loadQuizData(chapterId).then(setQuestions);
   }, [chapterId]);
 
-  // Track visited questions and scroll on index change
   useEffect(() => {
     setVisited((prev) => new Set(prev).add(currentIndex));
     window.scrollTo({ top: 0, behavior: 'smooth' });
-    setTimeLeft(15); // reset timer
+    setTimeLeft(15);
   }, [currentIndex]);
 
-  // Timer countdown logic
   useEffect(() => {
     if (questions.length === 0 || currentIndex >= questions.length) return;
 
@@ -57,10 +57,7 @@ function Quiz() {
   }, [currentIndex, questions.length]);
 
   const handleAnswer = (option) => {
-    setUserAnswers((prev) => ({
-      ...prev,
-      [currentIndex]: option,
-    }));
+    setUserAnswers((prev) => ({ ...prev, [currentIndex]: option }));
   };
 
   const handleNext = () => {
@@ -78,8 +75,11 @@ function Quiz() {
   const handleSubmit = () => {
     const confirmSubmit = window.confirm("Are you sure you want to submit the quiz?");
     if (confirmSubmit) {
-      localStorage.setItem(`quiz-${chapterId}`, JSON.stringify(userAnswers));
-      navigate(`/result/${chapterId}`);
+      setShowConfetti(true);
+      setTimeout(() => {
+        localStorage.setItem(`quiz-${chapterId}`, JSON.stringify(userAnswers));
+        navigate(`/result/${chapterId}`);
+      }, 5000);
     }
   };
 
@@ -95,11 +95,10 @@ function Quiz() {
 
   return (
     <div className="container mx-auto p-8 flex gap-6">
-      {/* Sidebar */}
+      {showConfetti && <Confetti recycle={false} numberOfPieces={1500} />}
+
       <div className="w-1/4 p-6 bg-gradient-to-b from-gray-700 to-gray-500 text-white rounded-2xl shadow-2xl border border-white/10">
         <h2 className="text-2xl font-extrabold mb-4 tracking-wider">Question Navigation</h2>
-
-        {/* Legend */}
         <div className="text-sm font-medium mb-6 space-y-2">
           <div className="flex items-center gap-3">
             <div className="w-4 h-4 bg-green-500 rounded-full shadow"></div> Answered
@@ -115,7 +114,6 @@ function Quiz() {
           </div>
         </div>
 
-        {/* Question Numbers */}
         <div className="grid grid-cols-5 gap-3 overflow-y-auto max-h-[320px] custom-scrollbar">
           {questions.map((_, index) => {
             const isCurrent = index === currentIndex;
@@ -146,13 +144,11 @@ function Quiz() {
         </div>
       </div>
 
-      {/* Quiz Content */}
       <div className="w-3/4 pl-4">
         <h2 className="text-4xl font-extrabold tracking-wide text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-blue-500 mb-8 drop-shadow-md">
           Quiz - {chapterId.replace('_', ' ')}
         </h2>
 
-        {/* Progress */}
         <p className="text-lg text-gray-700 mb-2 font-semibold tracking-wider">
           Question {currentIndex + 1} of {questions.length}
         </p>
@@ -163,7 +159,6 @@ function Quiz() {
           ></div>
         </div>
 
-        {/* Timer */}
         <div className="flex justify-between items-center mb-2">
           <p className="text-lg font-bold text-red-600">
             ⏱ Time Left: {timeLeft}s
@@ -176,29 +171,36 @@ function Quiz() {
           </div>
         </div>
 
-        {/* Question */}
-        <div className="bg-white/30 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-gray-300 mb-8">
-          <p className="text-3xl font-semibold text-gray-900 leading-relaxed mb-6">
-            Q{currentIndex + 1}: {questions[currentIndex].question}
-          </p>
-          <div className="mt-4">
-            {questions[currentIndex].options.map((option, idx) => (
-              <button
-                key={idx}
-                onClick={() => handleAnswer(option)}
-                className={`block w-full text-left p-4 mb-4 rounded-xl shadow-md text-lg font-medium transition-all duration-300 hover:scale-[1.02] ${
-                  userAnswers[currentIndex] === option
-                    ? 'bg-blue-600 text-white ring-2 ring-blue-400'
-                    : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
-                }`}
-              >
-                {option}
-              </button>
-            ))}
-          </div>
-        </div>
+        <AnimatePresence mode="wait">
+          <motion.div
+            key={currentIndex}
+            initial={{ opacity: 0, x: 50 }}
+            animate={{ opacity: 1, x: 0 }}
+            exit={{ opacity: 0, x: -50 }}
+            transition={{ duration: 0.5 }}
+            className="bg-white/30 backdrop-blur-lg p-6 rounded-2xl shadow-lg border border-gray-300 mb-8"
+          >
+            <p className="text-3xl font-semibold text-gray-900 leading-relaxed mb-6">
+              Q{currentIndex + 1}: {questions[currentIndex].question}
+            </p>
+            <div className="mt-4">
+              {questions[currentIndex].options.map((option, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => handleAnswer(option)}
+                  className={`block w-full text-left p-4 mb-4 rounded-xl shadow-md text-lg font-medium transition-all duration-300 hover:scale-[1.02] ${
+                    userAnswers[currentIndex] === option
+                      ? 'bg-blue-600 text-white ring-2 ring-blue-400'
+                      : 'bg-gray-100 text-gray-800 hover:bg-gray-200'
+                  }`}
+                >
+                  {option}
+                </button>
+              ))}
+            </div>
+          </motion.div>
+        </AnimatePresence>
 
-        {/* Buttons */}
         <div className="flex justify-between items-center mt-6 flex-wrap gap-4">
           <button
             onClick={handlePrev}
