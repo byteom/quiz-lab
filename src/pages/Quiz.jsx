@@ -49,6 +49,7 @@ function Quiz() {
 
   const handleSubmit = () => {
     localStorage.setItem(`quiz-${chapterId}`, JSON.stringify(userAnswers));
+    localStorage.setItem(`quiz-questions-${chapterId}`, JSON.stringify(questions));
     navigate(`/result/${chapterId}`);
   };
 
@@ -133,10 +134,7 @@ function Quiz() {
     Submit Quiz
   </button>
 )}
-
-
-
-          <button
+<button
             onClick={handleNext}
             disabled={currentIndex === questions.length - 1}
             className={`px-4 py-2 rounded-full shadow-md transition-transform transform hover:scale-105 ${
