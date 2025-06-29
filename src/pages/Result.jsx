@@ -9,6 +9,7 @@ function Result() {
   const [questions, setQuestions] = useState([]);
   const [score, setScore] = useState(0);
   const [attempted, setAttempted] = useState(0);
+  const [timeTaken, setTimeTaken] = useState(null); // ⏱️
 
   useEffect(() => {
     const loadQuestions = async () => {
@@ -32,6 +33,18 @@ function Result() {
 
         setScore(correctAnswers);
         setAttempted(totalAttempted);
+
+        // ⏱️ Calculate and set time taken
+        const start = parseInt(localStorage.getItem(`quiz-start-${chapterId}`));
+        const end = parseInt(localStorage.getItem(`quiz-end-${chapterId}`));
+
+        if (!isNaN(start) && !isNaN(end)) {
+          const totalSeconds = Math.floor((end - start) / 1000);
+          const minutes = Math.floor(totalSeconds / 60);
+          const seconds = totalSeconds % 60;
+          setTimeTaken(`${minutes}m ${seconds}s`);
+        }
+
       } catch (error) {
         console.error("Failed to load result data:", error);
       }
@@ -42,6 +55,8 @@ function Result() {
 
   const handleRetakeQuiz = () => {
     localStorage.removeItem(`quiz-${chapterId}`);
+    localStorage.removeItem(`quiz-start-${chapterId}`);
+    localStorage.removeItem(`quiz-end-${chapterId}`);
     navigate(`/quiz/${chapterId}`);
   };
 
@@ -73,12 +88,11 @@ function Result() {
         <p className="text-lg font-medium text-gray-800 dark:text-white">Total Questions: {questions.length}</p>
         <p className="text-lg font-medium text-gray-800 dark:text-white">Attempted Questions: {attempted}</p>
         <p className="text-lg font-medium text-gray-800 dark:text-white">Correct Answers: {score}</p>
-        <p className="text-lg font-medium text-blue-700 dark:text-blue-300 mt-4">
-          🎯 Percentage: {percentage}%
-        </p>
-        <p className="text-xl font-semibold text-green-600 dark:text-green-400 mt-2">
-          {message}
-        </p>
+        <p className="text-lg font-medium text-blue-700 dark:text-blue-300 mt-4">🎯 Percentage: {percentage}%</p>
+        <p className="text-xl font-semibold text-green-600 dark:text-green-400 mt-2">{message}</p>
+        {timeTaken && (
+          <p className="mt-3 text-sm text-gray-700 dark:text-gray-300">🕒 Time Taken: {timeTaken}</p>
+        )}
       </div>
 
       {/* Detailed question review */}
