@@ -23,9 +23,16 @@ function Quiz() {
   const [userAnswers, setUserAnswers] = useState(
     JSON.parse(localStorage.getItem(`quiz-${chapterId}`)) || {}
   );
+  const [bookmarks, setBookmarks] = useState(
+    JSON.parse(localStorage.getItem(`quiz-bookmarks-${chapterId}`)) || []
+  );
 
   useEffect(() => {
     loadQuizData(chapterId).then(setQuestions);
+
+    if (!localStorage.getItem(`quiz-start-${chapterId}`)) {
+      localStorage.setItem(`quiz-start-${chapterId}`, Date.now());
+    }
   }, [chapterId]);
 
   const handleAnswer = (option) => {
@@ -33,6 +40,18 @@ function Quiz() {
       ...prev,
       [currentIndex]: option,
     }));
+  };
+
+  const toggleBookmark = () => {
+    const index = currentIndex;
+    let updatedBookmarks = [...bookmarks];
+    if (bookmarks.includes(index)) {
+      updatedBookmarks = updatedBookmarks.filter((i) => i !== index);
+    } else {
+      updatedBookmarks.push(index);
+    }
+    setBookmarks(updatedBookmarks);
+    localStorage.setItem(`quiz-bookmarks-${chapterId}`, JSON.stringify(updatedBookmarks));
   };
 
   const handleNext = () => {
@@ -49,12 +68,17 @@ function Quiz() {
 
   const handleSubmit = () => {
     localStorage.setItem(`quiz-${chapterId}`, JSON.stringify(userAnswers));
+    localStorage.setItem(`quiz-end-${chapterId}`, Date.now());
     navigate(`/result/${chapterId}`);
   };
 
   const handleReset = () => {
     localStorage.removeItem(`quiz-${chapterId}`);
+    localStorage.removeItem(`quiz-start-${chapterId}`);
+    localStorage.removeItem(`quiz-end-${chapterId}`);
+    localStorage.removeItem(`quiz-bookmarks-${chapterId}`);
     setUserAnswers({});
+    setBookmarks([]);
     setCurrentIndex(0);
   };
 
@@ -67,8 +91,7 @@ function Quiz() {
       {/* Sidebar for question navigation */}
       <div className="w-1/4 p-4 bg-gradient-to-b from-gray-600 to-gray-500 text-white rounded-xl shadow-lg">
         <h2 className="text-xl font-bold mb-6">Question Navigation</h2>
-        
-        {/* Scrollable navigation with circular buttons */}
+
         <div className="grid grid-cols-5 gap-4 overflow-y-auto max-h-[320px] custom-scrollbar">
           {questions.map((_, index) => (
             <button
@@ -76,11 +99,12 @@ function Quiz() {
               onClick={() => setCurrentIndex(index)}
               className={`w-10 h-10 rounded-full text-center font-semibold transition transform hover:scale-105 ${
                 index === currentIndex
-                  ? 'bg-blue-500 text-white'            // Current question color
+                  ? 'bg-blue-500 text-white'
                   : userAnswers[index]
-                  ? 'bg-red-500 text-white'             // Attempted question color
-                  : 'border border-gray-400 text-gray-700' // Unattempted question color
+                  ? 'bg-red-500 text-white'
+                  : 'border border-gray-400 text-gray-700'
               }`}
+              title={bookmarks.includes(index) ? "🔖 Bookmarked" : "Not Bookmarked"}
             >
               {index + 1}
             </button>
@@ -94,20 +118,30 @@ function Quiz() {
           Quiz - {chapterId.replace('_', ' ')}
         </h2>
 
-        {/* Display current question */}
         <div className="bg-white/20 backdrop-blur-lg p-6 rounded-xl shadow-lg border border-gray-300 mb-8">
-          <p className="text-2xl font-semibold text-gray-800">
-            Q{currentIndex + 1}: {questions[currentIndex].question}
-          </p>
+          <div className="flex justify-between items-center mb-2">
+            <p className="text-2xl font-semibold text-gray-800 dark:text-white">
+              Q{currentIndex + 1}: {questions[currentIndex].question}
+            </p>
+            <button
+              onClick={toggleBookmark}
+              className="text-xl px-3 py-1 rounded-md bg-yellow-400 text-black hover:bg-yellow-500 transition"
+              aria-label="Bookmark question"
+              title="Bookmark this question"
+            >
+              {bookmarks.includes(currentIndex) ? "🔖" : "📑"}
+            </button>
+          </div>
+
           <div className="mt-4">
             {questions[currentIndex].options.map((option, idx) => (
               <button
                 key={idx}
                 onClick={() => handleAnswer(option)}
-                className={`block w-full text-left p-3 mb-3 rounded-lg transition-transform transform hover:scale-105 ${
+                className={`quiz-option block w-full text-left p-3 mb-3 rounded-lg transition-transform transform hover:scale-105 ${
                   userAnswers[currentIndex] === option
                     ? 'bg-blue-500 text-white'
-                    : 'bg-gray-100 text-gray-800'
+                    : 'bg-gray-100 text-gray-800 dark:bg-slate-700 dark:text-white'
                 }`}
               >
                 {option}
@@ -117,7 +151,7 @@ function Quiz() {
         </div>
 
         {/* Navigation and Reset buttons */}
-        <div className="flex justify-between items-center mt-6">
+        <div className="flex justify-between items-center mt-6 flex-wrap gap-3">
           <button
             onClick={handlePrev}
             disabled={currentIndex === 0}
