@@ -3,11 +3,11 @@
 name: Auto-Merge Pull Requests
 
 on:
-  workflow_dispatch:          # 👈 allows manual runs
+  workflow_dispatch:          # Allows manual run
   pull_request_target:
     types: [opened, synchronize, reopened]
   schedule:
-    - cron: '*/30 * * * *'
+    - cron: '*/30 * * * *'    # Every 30 minutes
 
 jobs:
   automerge:
@@ -26,7 +26,7 @@ jobs:
           merge-method: merge
           remove-branch: true
           conflict-check: true
-          required-statuses: []
+          required-statuses: ""   # ✅ Fixed
 
       - name: Auto-merge existing pull requests (scheduled)
         if: github.event_name == 'schedule'
@@ -37,4 +37,4 @@ jobs:
           merge-method: merge
           remove-branch: true
           conflict-check: true
-          required-statuses: []
+          required-statuses: ""   # ✅ Fixed
