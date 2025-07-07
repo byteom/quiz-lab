@@ -27,7 +27,7 @@ jobs:
 
     steps:
       - name: Auto-merge new pull requests
-        # This step runs only when the workflow is triggered by a pull_request_target event.
+        # This step runs only when the workflow is triggered by a 'pull_request_target' event.
         # It ensures that new PRs are merged automatically as soon as they are ready.
         if: github.event_name == 'pull_request_target'
         uses: pascalgn/automerge-action@v0.16.0
@@ -54,7 +54,7 @@ jobs:
           required-statuses: [] # Leave empty to require all checks to pass, or list specific ones.
 
       - name: Auto-merge existing pull requests (scheduled check)
-        # This step runs only when the workflow is triggered by a schedule event.
+        # This step runs only when the workflow is triggered by a 'schedule' event.
         # It iterates through open PRs and merges those that meet the criteria.
         if: github.event_name == 'schedule'
         uses: pascalgn/automerge-action@v0.16.0
