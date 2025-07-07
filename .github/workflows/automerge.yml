@@ -1,0 +1,73 @@
+# .github/workflows/automerge.yml
+
+name: Auto-Merge Pull Requests
+
+# This workflow will trigger on:
+# 1. 'pull_request_target' events: when a new pull request is opened, synchronized, or reopened.
+#    This is used to automatically merge new PRs once all checks pass.
+# 2. 'schedule' events: to periodically check for and merge existing (older) pull requests.
+#    This helps catch PRs that might have been ready but not merged immediately,
+#    and helps implement a "first come, first merge" by processing open PRs.
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+  schedule:
+    # Runs every 30 minutes. Adjust as needed.
+    # The cron syntax is: minute hour day_of_month month day_of_week
+    # For example, '0 * * * *' would run every hour at minute 0.
+    - cron: '*/30 * * * *'
+
+jobs:
+  automerge:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to push the merge commit
+      pull-requests: write # Required to merge pull requests
+
+    steps:
+      - name: Auto-merge new pull requests
+        # This step runs only when the workflow is triggered by a pull_request_target event.
+        # It ensures that new PRs are merged automatically as soon as they are ready.
+        if: github.event_name == 'pull_request_target'
+        uses: pascalgn/automerge-action@v0.16.0
+        with:
+          # Token to authenticate with GitHub API. GITHUB_TOKEN is usually sufficient.
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Set to true to enable merging for the current pull request.
+          pull-request: true
+          # The merge method to use: 'merge', 'squash', or 'rebase'.
+          # 'merge' is typically used for standard merges.
+          merge-method: merge
+          # Optional: Custom commit message for the merge.
+          # merge-commit-message: "Auto-merged by workflow"
+          # Optional: Remove the source branch after merging.
+          remove-branch: true
+          # Enable conflict checking. The action will only merge if there are no conflicts.
+          conflict-check: true
+          # Optional: Set a label to require before merging. E.g., 'automerge'
+          # required-labels: "automerge"
+          # Optional: Set a label to block merging. E.g., 'do not merge'
+          # blocked-labels: "do not merge"
+          # Optional: Require all status checks to pass before merging.
+          # This is highly recommended to ensure code quality.
+          required-statuses: [] # Leave empty to require all checks to pass, or list specific ones.
+
+      - name: Auto-merge existing pull requests (scheduled check)
+        # This step runs only when the workflow is triggered by a schedule event.
+        # It iterates through open PRs and merges those that meet the criteria.
+        if: github.event_name == 'schedule'
+        uses: pascalgn/automerge-action@v0.16.0
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          # Filter to apply to pull requests when running on a schedule.
+          # 'open' ensures only currently open pull requests are considered.
+          pull-requests-filter: 'open'
+          merge-method: merge
+          remove-branch: true
+          conflict-check: true
+          required-statuses: [] # Require all checks to pass for existing PRs too.
+          # Optional: You can add more specific filters here, e.g., to only merge PRs
+          # that have a specific label, or from specific authors.
+          # For "first come, first merge", the action generally processes PRs
+          # in the order they are returned by the GitHub API, which is often by creation date.
