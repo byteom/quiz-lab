@@ -1,3 +1,20 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+/* 👇 Custom Dark Mode Support */
+body.dark {
+  background-color: #1e293b; /* slate-800 */
+  color: #ffffff;
+}
+
+body.dark a,
+body.dark button {
+  color: #ffffff;
+}
+
+/* ✅ Quiz Options Visibility Fix */
+body.dark .quiz-option {
+  background-color: #334155; /* slate-700 */
+  color: #f9fafb;            /* near white */
+}
